@@ -129,14 +129,26 @@ df = pd.read_csv('000001.csv')
 
 
 
-pivots = peak_valley_pivots_candlestick(df.close, df.high, df.low ,.01,-.01)
+pivots = peak_valley_pivots_candlestick(df.close, df.high, df.low ,.08,-.08)
 df['Pivots'] = pivots
-df['Pivot Price'] = np.nan  # This line clears old pivot prices
-df.loc[df['Pivots'] == 1, 'Pivot Price'] = df.high
-df.loc[df['Pivots'] == -1, 'Pivot Price'] = df.low
+df['P_Price'] = np.nan  # This line clears old pivot prices
+df.loc[df['Pivots'] == 1, 'P_Price'] = df.high
+df.loc[df['Pivots'] == -1, 'P_Price'] = df.low
 
-
-
+# zg_df = df.loc[df['P_Price'].notnull()]
+# zg_df.to_csv('./slice/000001/zg.csv')
+# print(zg_df[['Pivots','P_Price']].iloc[1:])
+for i, p in enumerate(df['P_Price']):
+    # print(p)
+    if not np.isnan(p) and df['Pivots'].iloc[i] == -1:
+        for y in (df[['Pivots','P_Price']].iloc[i+1:].itertuples()):
+            if(getattr(y,'Pivots') == -1):
+                if(getattr(y,'P_Price') < p):
+                    break
+                if (abs(getattr(y,'P_Price') - p) <= 0.05 or 0 < (p - getattr(y,'P_Price'))/p <= 0.03) and getattr(y,'Pivots') == df['Pivots'].iloc[i]:
+                    df.iloc[i:getattr(y,'Index')+1].to_csv('./testdata/'+ str(i) + str(getattr(y,'Index')) + '.csv')
+                    print(p,getattr(y,'P_Price'))
+# assert 0
 fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
 
                 open=df['open'],
@@ -145,13 +157,13 @@ fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
                 close=df['close'])])
 
 
-df_diff = df['Pivot Price'].dropna().diff().copy()
+df_diff = df['P_Price'].dropna().diff().copy()
 
 
 fig.add_trace(
     go.Scatter(mode = "lines+markers",
         x=df['datetime'],
-        y=df["Pivot Price"]
+        y=df["P_Price"]
     ))
 
 fig.update_layout(
@@ -160,7 +172,7 @@ fig.update_layout(
     height=800,)
 
 fig.add_trace(go.Scatter(x=df['datetime'],
-                         y=df['Pivot Price'].interpolate(),
+                         y=df['P_Price'].interpolate(),
                          mode = 'lines',
                          line = dict(color='black')))
 
@@ -173,7 +185,7 @@ def annot(value):
     
 
 j = 0
-for i, p in enumerate(df['Pivot Price']):
+for i, p in enumerate(df['P_Price']):
     if not np.isnan(p):
 
         
