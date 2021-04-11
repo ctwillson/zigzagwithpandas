@@ -127,7 +127,8 @@ def peak_valley_pivots_candlestick(close, high, low, up_thresh, down_thresh):
 csv_filename = []
 for root, dirs, files in os.walk('/Users/tutu/coding/bt_stock/testdata/day/'):
     csv_filename = files
-print(csv_filename)
+# print(csv_filename)
+# csv_filename = ['000001.csv']
 # assert 0
 for csvname in csv_filename:
     df = pd.read_csv('/Users/tutu/coding/bt_stock/testdata/day/' + csvname)
@@ -139,7 +140,8 @@ for csvname in csv_filename:
     df['P_Price'] = np.nan  # This line clears old pivot prices
     df.loc[df['Pivots'] == 1, 'P_Price'] = df.high
     df.loc[df['Pivots'] == -1, 'P_Price'] = df.low
-
+    peak_index = df.loc[df['Pivots'] == 1].index
+    valley_index = df.loc[df['Pivots'] == -1].index
     # zg_df = df.loc[df['P_Price'].notnull()]
     # zg_df.to_csv('./slice/000001/zg.csv')
     # print(zg_df[['Pivots','P_Price']].iloc[1:])
@@ -150,24 +152,64 @@ for csvname in csv_filename:
                 if(getattr(y,'Pivots') == -1):
                     if(getattr(y,'P_Price') < p):
                         break
-                    if (abs(getattr(y,'P_Price') - p) <= 0.05 or 0 < (p - getattr(y,'P_Price'))/p <= 0.03) and getattr(y,'Pivots') == df['Pivots'].iloc[i]:
+                    if (abs(getattr(y,'P_Price') - p) <= 0.05 or 0 < (getattr(y,'P_Price') - p)/getattr(y,'P_Price') <= 0.03) and getattr(y,'Pivots') == df['Pivots'].iloc[i]:
                         path = './testdata/' + csvname[0:6] + '/'
                         if not os.path.exists(path):
                             os.system(r"mkdir {}".format(path))
                         df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
-                        print(p,getattr(y,'P_Price'))
+                        # print(p,getattr(y,'P_Price'))
+    for i, p in enumerate(df['P_Price']):
+        begin = 0
+        end = 0
+        if not np.isnan(p) and df['Pivots'].iloc[i] == -1:
+            # for 
+            # if()
+            #计算从哪里开始遍历
+            for num,pi in enumerate(peak_index):
+                if(pi > i):
+                    begin = pi
+                    # end = peak_index[num+8]
+                    break
+            # assert 0
+            # 遍历价格，如果接近上一个valley的3个点，就切片保存，如果一旦出现价格低于valley的立即停止遍历
+            for li,y in enumerate(df['low'].iloc[begin:peak_index[num+1 if num+1 < len(peak_index) else len(peak_index) -1]]):
+                if (abs(y - p) <= 0.05 or 0 < (y - p)/y <= 0.03):
+                    for oi,value in enumerate(df['low'].iloc[begin+li:begin+li+8]):
+                        if(value < p):
+                            break
+                    if (oi < 7):
+                        path = './testdata/' + csvname[0:6] + '/false/'
+                        if not os.path.exists(path):
+                            os.system(r"mkdir {}".format(path))
+                        # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
+                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
+                        print(y,p)
+                        break
+                    else:
+                        path = './testdata/' + csvname[0:6] + '/true/'
+                        if not os.path.exists(path):
+                            os.system(r"mkdir {}".format(path))
+                        # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
+                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
+                        print(y,p)
+                        break
+                elif y < p:
+                    break
+
     # assert 0
-    fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
-
-                    open=df['open'],
-                    high=df['high'],
-                    low=df['low'],
-                    close=df['close'])])
 
 
-    df_diff = df['P_Price'].dropna().diff().copy()
+# assert 0
+df = pd.read_csv('./testdata/000001/true/28.csv')
+fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
 
-assert 0
+                open=df['open'],
+                high=df['high'],
+                low=df['low'],
+                close=df['close'])])
+
+
+df_diff = df['P_Price'].dropna().diff().copy()
 fig.add_trace(
     go.Scatter(mode = "lines+markers",
         x=df['datetime'],
