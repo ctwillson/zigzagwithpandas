@@ -182,7 +182,7 @@ for csvname in csv_filename:
                         if not os.path.exists(path):
                             os.makedirs(path)
                         # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
-                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
+                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv',index=False)
                         print(y,p)
                         break
                     else:
@@ -191,7 +191,7 @@ for csvname in csv_filename:
                             os.makedirs(path)
                             # os.system(r"mkdir {}".format(path))
                         # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
-                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
+                        df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv',index=False)
                         print(y,p)
                         break
                 elif y < p:
