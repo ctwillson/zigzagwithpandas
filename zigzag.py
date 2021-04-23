@@ -145,26 +145,26 @@ for csvname in csv_filename:
     # zg_df = df.loc[df['P_Price'].notnull()]
     # zg_df.to_csv('./slice/000001/zg.csv')
     # print(zg_df[['Pivots','P_Price']].iloc[1:])
-    for i, p in enumerate(df['P_Price']):
-        # print(p)
-        if not np.isnan(p) and df['Pivots'].iloc[i] == -1:
-            for y in (df[['Pivots','P_Price']].iloc[i+1:].itertuples()):
-                if(getattr(y,'Pivots') == -1):
-                    if(getattr(y,'P_Price') < p):
-                        break
-                    if (abs(getattr(y,'P_Price') - p) <= 0.05 or 0 < (getattr(y,'P_Price') - p)/getattr(y,'P_Price') <= 0.03) and getattr(y,'Pivots') == df['Pivots'].iloc[i]:
-                        path = './testdata/' + csvname[0:6] + '/'
-                        if not os.path.exists(path):
-                            os.system(r"mkdir {}".format(path))
-                        df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
+    # for i, p in enumerate(df['P_Price']):
+    #     # print(p)
+    #     if not np.isnan(p) and df['Pivots'].iloc[i] == -1:
+    #         for y in (df[['Pivots','P_Price']].iloc[i+1:].itertuples()):
+    #             if(getattr(y,'Pivots') == -1):
+    #                 if(getattr(y,'P_Price') < p):
+    #                     break
+    #                 if (abs(getattr(y,'P_Price') - p) <= 0.05 or 0 < (getattr(y,'P_Price') - p)/getattr(y,'P_Price') <= 0.03) and getattr(y,'Pivots') == df['Pivots'].iloc[i]:
+    #                     path = './testdata/' + csvname[0:6] + '/'
+    #                     if not os.path.exists(path):
+    #                         os.system(r"mkdir {}".format(path))
+    #                     df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
                         # print(p,getattr(y,'P_Price'))
     for i, p in enumerate(df['P_Price']):
         begin = 0
         end = 0
         if not np.isnan(p) and df['Pivots'].iloc[i] == -1:
-            # for 
-            # if()
             #计算从哪里开始遍历
+            if(len(peak_index) <= 1):
+                continue
             for num,pi in enumerate(peak_index):
                 if(pi > i):
                     begin = pi
@@ -180,7 +180,7 @@ for csvname in csv_filename:
                     if (oi < 7):
                         path = './testdata/' + csvname[0:6] + '/false/'
                         if not os.path.exists(path):
-                            os.system(r"mkdir {}".format(path))
+                            os.makedirs(path)
                         # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
                         df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
                         print(y,p)
@@ -188,7 +188,8 @@ for csvname in csv_filename:
                     else:
                         path = './testdata/' + csvname[0:6] + '/true/'
                         if not os.path.exists(path):
-                            os.system(r"mkdir {}".format(path))
+                            os.makedirs(path)
+                            # os.system(r"mkdir {}".format(path))
                         # df.iloc[i:getattr(y,'Index')+1].to_csv(path + str(i) + str(getattr(y,'Index')) + '.csv')
                         df.iloc[i:begin+li+5].to_csv(path + str(i) + '.csv')
                         print(y,p)
@@ -200,7 +201,7 @@ for csvname in csv_filename:
 
 
 # assert 0
-df = pd.read_csv('./testdata/000001/true/28.csv')
+df = pd.read_csv('./testdata/000001/flase/186.csv')
 fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
 
                 open=df['open'],
