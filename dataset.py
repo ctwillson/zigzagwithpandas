@@ -37,38 +37,77 @@ def collate_fn(data):
     data = pack_padded_sequence(data, seq_len, batch_first=True)
     return data,label
 
-a = torch.tensor([1,2,3,4])
-b = torch.tensor([5,6,7])
-c = torch.tensor([7,8])
-d = torch.tensor([9])
-train_x = [a, b, c, d]
+def test():
+    a = torch.tensor([1,2,3,4])
+    b = torch.tensor([5,6,7])
+    c = torch.tensor([7,8])
+    d = torch.tensor([9])
+    train_x = [a, b, c, d]
 
-X = []
-Y = []
-true_file = './testdata/000001/true'
-false_file = './testdata/000001/false'
-for root, dirs, files in os.walk(true_file):
-    for file in files:
-        # print(file)
-        df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
-        df.drop('pre_close',axis=1,inplace=True)
-        # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
-        X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
-        Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
-        print(df.values)
-    # assert 0
-print(X)
-print(Y)
-train_x = X
-train_y = Y
-data = MyData(train_x,train_y)
-test = data[0]
-data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
-batch_x = iter(data_loader).next()
-(a,b)=batch_x
-rnn = nn.LSTM(7, 4, 1, batch_first=True)
-# h0 (num_layer,batchsize,hidden_size),和 input_size无关
-# offical doc :(num_layers * num_directions, batch, hidden_size)
-h0 = torch.rand(1, 2, 4).float()
-c0 = torch.rand(1, 2, 4).float()
-out, (h1, c1) = rnn(a, (h0, c0))
+    X = []
+    Y = []
+    true_file = './testdata/000001/true'
+    false_file = './testdata/000001/false'
+    for root, dirs, files in os.walk(true_file):
+        for file in files:
+            # print(file)
+            df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
+            df.drop('pre_close',axis=1,inplace=True)
+            # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+            X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
+            Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+            print(df.values)
+        # assert 0
+    print(X)
+    print(Y)
+    train_x = X
+    train_y = Y
+    data = MyData(train_x,train_y)
+    test = data[0]
+    data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
+    batch_x = iter(data_loader).next()
+    (a,b)=batch_x
+    rnn = nn.LSTM(7, 4, 1, batch_first=True)
+    # h0 (num_layer,batchsize,hidden_size),和 input_size无关
+    # offical doc :(num_layers * num_directions, batch, hidden_size)
+    h0 = torch.rand(1, 2, 4).float()
+    c0 = torch.rand(1, 2, 4).float()
+    out, (h1, c1) = rnn(a, (h0, c0))
+def getData(corpusFile,is_cache=False):
+    X = []
+    Y = []
+    for root ,dirs ,files in os.walk(corpusFile):
+        print(dirs)
+        break
+    for myfiles in dirs:
+        true_file = os.path.join(corpusFile,myfiles,'true')
+        false_file = os.path.join(corpusFile,myfiles,'false')
+        for root, dirs, files in os.walk(true_file):
+                for file in files:
+                    # print(file)
+                    df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
+                    df.drop('pre_close',axis=1,inplace=True)
+                    # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                    X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
+                    Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+                    print(df.values)
+        for root, dirs, files in os.walk(false_file):
+                for file in files:
+                    # print(file)
+                    df = pd.read_csv(os.path.join(false_file,file),index_col=0).iloc[:,2:10]
+                    df.drop('pre_close',axis=1,inplace=True)
+                    # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                    X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
+                    Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+                    print(df.values)
+        train_x = X
+        train_y = Y
+        data = MyData(train_x,train_y)
+        test = data[0]
+        data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
+        # batch_x = iter(data_loader).next()
+        # (a,b)=batch_x
+        # rnn = nn.LSTM(7, 4, 1, batch_first=True)
+        return data_loader
+
+getData('./testdata')
