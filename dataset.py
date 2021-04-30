@@ -1,7 +1,8 @@
 import os
-import torch
+import pickle
 import pandas as pd
 import numpy as np
+import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader,Dataset
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence,pad_sequence
@@ -76,38 +77,47 @@ def test():
 def getData(corpusFile,is_cache=False):
     X = []
     Y = []
-    for root ,dirs ,files in os.walk(corpusFile):
-        print(dirs)
-        break
-    for myfiles in dirs:
-        true_file = os.path.join(corpusFile,myfiles,'true')
-        false_file = os.path.join(corpusFile,myfiles,'false')
-        for root, dirs, files in os.walk(true_file):
-                for file in files:
-                    # print(file)
-                    df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
-                    df.drop('pre_close',axis=1,inplace=True)
-                    # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
-                    X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
-                    Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
-                    print(df.values)
-        for root, dirs, files in os.walk(false_file):
-                for file in files:
-                    # print(file)
-                    df = pd.read_csv(os.path.join(false_file,file),index_col=0).iloc[:,2:10]
-                    df.drop('pre_close',axis=1,inplace=True)
-                    # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
-                    X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
-                    Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
-                    print(df.values)
-        train_x = X
-        train_y = Y
-        data = MyData(train_x,train_y)
-        test = data[0]
-        data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
-        # batch_x = iter(data_loader).next()
-        # (a,b)=batch_x
-        # rnn = nn.LSTM(7, 4, 1, batch_first=True)
-        return data_loader
+    if(is_cache):
+        with open('dataX.pkl','rb') as f:
+            X = pickle.load(f)
+        with open('dataY.pkl','rb') as f:
+            Y = pickle.load(f)
+    else:
+        for root ,dirs ,files in os.walk(corpusFile):
+            print(dirs)
+            break
+        for myfiles in dirs:
+            true_file = os.path.join(corpusFile,myfiles,'true')
+            false_file = os.path.join(corpusFile,myfiles,'false')
+            for root, dirs, files in os.walk(true_file):
+                    for file in files:
+                        # print(file)
+                        df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
+                        df.drop('pre_close',axis=1,inplace=True)
+                        # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                        X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
+                        Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+                        print(df.values)
+            for root, dirs, files in os.walk(false_file):
+                    for file in files:
+                        # print(file)
+                        df = pd.read_csv(os.path.join(false_file,file),index_col=0).iloc[:,2:10]
+                        df.drop('pre_close',axis=1,inplace=True)
+                        # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                        X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
+                        Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+                        print(df.values)
+        with open('dataX.pkl','wb') as f:
+            pickle.dump(X, f)
+        with open('dataY.pkl','wb') as f:
+            pickle.dump(Y, f)
+    train_x = X
+    train_y = Y
+    data = MyData(train_x,train_y)
+    data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
+    # batch_x = iter(data_loader).next()
+    # (a,b)=batch_x
+    # rnn = nn.LSTM(7, 4, 1, batch_first=True)
+    return data_loader
 
 getData('./testdata')
