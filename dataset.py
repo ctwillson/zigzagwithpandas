@@ -105,7 +105,7 @@ def getData(corpusFile,is_cache=False):
                         df.drop('pre_close',axis=1,inplace=True)
                         # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
                         X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
-                        Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
+                        Y.append(torch.from_numpy(np.array(0, dtype=np.float32)))
                         print(df.values)
         with open('dataX.pkl','wb') as f:
             pickle.dump(X, f)
