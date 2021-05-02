@@ -74,9 +74,11 @@ def test():
     h0 = torch.rand(1, 2, 4).float()
     c0 = torch.rand(1, 2, 4).float()
     out, (h1, c1) = rnn(a, (h0, c0))
-def getData(corpusFile,is_cache=False):
+def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
+# def getData(corpusFile,is_cache=False,label: str = 'train'):
     X = []
     Y = []
+    print(label)
     if(is_cache):
         with open('dataX.pkl','rb') as f:
             X = pickle.load(f)
@@ -94,7 +96,7 @@ def getData(corpusFile,is_cache=False):
                         # print(file)
                         df = pd.read_csv(os.path.join(true_file,file),index_col=0).iloc[:,2:10]
                         df.drop('pre_close',axis=1,inplace=True)
-                        # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                        df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
                         X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
                         Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
                         print(df.values)
@@ -103,7 +105,7 @@ def getData(corpusFile,is_cache=False):
                         # print(file)
                         df = pd.read_csv(os.path.join(false_file,file),index_col=0).iloc[:,2:10]
                         df.drop('pre_close',axis=1,inplace=True)
-                        # df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
+                        df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
                         X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
                         Y.append(torch.from_numpy(np.array(0, dtype=np.float32)))
                         print(df.values)
@@ -120,4 +122,5 @@ def getData(corpusFile,is_cache=False):
     # rnn = nn.LSTM(7, 4, 1, batch_first=True)
     return data_loader
 
-getData('./testdata')
+getData('./testdata',True)
+# print(getData.__annotations__)

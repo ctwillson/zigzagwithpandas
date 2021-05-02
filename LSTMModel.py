@@ -1,5 +1,5 @@
 import torch.nn as nn
-
+import torch.nn.functional as F
 
 class lstm(nn.Module):
 
@@ -19,5 +19,5 @@ class lstm(nn.Module):
         out, (hidden, cell) = self.rnn(x)  # x.shape : batch, seq_len, hidden_size , hn.shape and cn.shape : num_layes * direction_numbers, batch, hidden_size
         # a, b, c = hidden.shape
         # out = self.linear(hidden.reshape(a * b, c))
-        out = self.linear(hidden)
+        out = F.sigmoid(self.linear(hidden))
         return out
