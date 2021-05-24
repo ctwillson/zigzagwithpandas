@@ -23,8 +23,8 @@ def eval():
         preds.extend(list[-1])
         labels.extend(label.tolist())
 
-    for i in range(len(preds)):
-        print('预测值是%.2f,真实值是%.2f' % (
-        preds[i][0] * (close_max - close_min) + close_min, labels[i] * (close_max - close_min) + close_min))
+    # for i in range(len(preds)):
+        # print('预测值是%.2f,真实值是%.2f' % (
+        # preds[i][0] * (close_max - close_min) + close_min, labels[i] * (close_max - close_min) + close_min))
 
 eval()
