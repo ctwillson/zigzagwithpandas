@@ -1,4 +1,5 @@
 import os
+import shutil
 import pickle
 import pandas as pd
 import numpy as np
@@ -59,8 +60,8 @@ def test():
             Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
             print(df.values)
         # assert 0
-    print(X)
-    print(Y)
+    # print(X)
+    # print(Y)
     train_x = X
     train_y = Y
     data = MyData(train_x,train_y)
@@ -86,7 +87,7 @@ def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
             Y = pickle.load(f)
     else:
         for root ,dirs ,files in os.walk(corpusFile):
-            print(dirs)
+            # print(dirs)
             break
         for myfiles in dirs:
             true_file = os.path.join(corpusFile,myfiles,'true')
@@ -99,7 +100,7 @@ def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
                         df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
                         X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
                         Y.append(torch.from_numpy(np.array(1, dtype=np.float32)))
-                        print(df.values)
+                        # print(df.values)
             for root, dirs, files in os.walk(false_file):
                     for file in files:
                         # print(file)
@@ -108,19 +109,34 @@ def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
                         df = df.apply(lambda x : (x-min(x)) / (max(x) - min(x)))
                         X.append(torch.from_numpy(np.array(df.values, dtype=np.float32)))
                         Y.append(torch.from_numpy(np.array(0, dtype=np.float32)))
-                        print(df.values)
+                        # print(df.values)
+        total_len = len(X)
+
         with open('dataX.pkl','wb') as f:
             pickle.dump(X, f)
         with open('dataY.pkl','wb') as f:
             pickle.dump(Y, f)
-    train_x = X
-    train_y = Y
-    data = MyData(train_x,train_y)
-    data_loader = DataLoader(data, batch_size=2, shuffle=True, collate_fn=collate_fn)
+        # with open('dataX_train.pkl','wb') as f:
+        #     pickle.dump(X[:int(total_len*0.7)], f)
+        # with open('dataY_train.pkl','wb') as f:
+        #     pickle.dump(Y[:int(total_len*0.7)], f)
+        # with open('dataX_test.pkl','wb') as f:
+        #     pickle.dump(X[:int(total_len*0.7):], f)
+        # with open('dataY_test.pkl','wb') as f:
+        #     pickle.dump(Y[int(total_len*0.7):], f)
+    total_len = len(X)
+    train_x = X[:int(total_len*0.7)]
+    train_y = Y[:int(total_len*0.7)]
+    test_x = X[int(total_len*0.7):]
+    test_y = Y[int(total_len*0.7):]
+    train_data = MyData(train_x,train_y)
+    test_data = MyData(test_x,test_y)
+    train_loader = DataLoader(train_data, batch_size=2, shuffle=True, collate_fn=collate_fn)
+    test_loader = DataLoader(test_data, batch_size=2, shuffle=True, collate_fn=collate_fn)
     # batch_x = iter(data_loader).next()
     # (a,b)=batch_x
     # rnn = nn.LSTM(7, 4, 1, batch_first=True)
-    return data_loader
+    return train_loader,test_loader
 
-getData('./testdata',True)
+getData('./testdata')
 # print(getData.__annotations__)

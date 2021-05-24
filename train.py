@@ -13,7 +13,7 @@ def train():
     criterion = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)  # Adam梯度下降  学习率=0.001
 
-    close_max, close_min, train_loader, test_loader = getData(args.corpusFile,args.sequence_length,args.batch_size )
+    train_loader, test_loader = getData(args.corpusFile,is_cache=args.is_cache)
     for i in range(args.epochs):
         total_loss = 0
         for idx, (data, label) in enumerate(train_loader):

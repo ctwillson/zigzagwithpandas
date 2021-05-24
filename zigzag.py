@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 import pandas as pd
 import os
+import shutil
 
 PEAK, VALLEY = 1, -1
 
@@ -124,6 +125,9 @@ def peak_valley_pivots_candlestick(close, high, low, up_thresh, down_thresh):
 
     return pivots
 
+if(os.path.exists('./testdata')):
+    shutil.rmtree('./testdata')
+os.mkdir('./testdata')
 csv_filename = []
 for root, dirs, files in os.walk('/Users/tutu/coding/bt_stock/testdata/day/'):
     csv_filename = files
@@ -200,7 +204,7 @@ for csvname in csv_filename:
     # assert 0
 
 
-# assert 0
+assert 0
 df = pd.read_csv('./testdata/000001/flase/186.csv')
 fig = go.Figure(data=[go.Candlestick(x=df['datetime'],
 
