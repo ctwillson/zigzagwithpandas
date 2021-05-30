@@ -76,6 +76,7 @@ def test():
     c0 = torch.rand(1, 2, 4).float()
     out, (h1, c1) = rnn(a, (h0, c0))
 def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
+    print(is_cache)
 # def getData(corpusFile,is_cache=False,label: str = 'train'):
     X = []
     Y = []
@@ -138,5 +139,6 @@ def getData(corpusFile,is_cache=False,label: str = ['train','valid']):
     # rnn = nn.LSTM(7, 4, 1, batch_first=True)
     return train_loader,test_loader
 
-getData('./testdata')
+if __name__ == "__main__":
+    getData('./testdata')
 # print(getData.__annotations__)

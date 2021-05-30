@@ -20,6 +20,9 @@ parsermy.py : 常用参数
 train.py：模型训练
 
 # 运行方法：
+        运行zigzag.py生成 slice data
+        
+        运行dataset.py生成dataset
 
         直接运行train.py开始模型训练
 

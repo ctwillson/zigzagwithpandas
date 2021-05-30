@@ -2,11 +2,11 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch
 from LSTMModel import lstm
-from parser_my import args
+from parser_my import parse_args
 from dataset import getData
 
-def train():
-
+def train(args=None):
+    args = parse_args(args)
     model = lstm(input_size=args.input_size, hidden_size=args.hidden_size, num_layers=args.layers , output_size=1, dropout=args.dropout, batch_first=args.batch_first )
     model.to(args.device)
     # criterion = nn.MSELoss()  # 定义损失函数
@@ -25,10 +25,10 @@ def train():
                 label = label.unsqueeze(1).cuda()
                 # print(label.shape)
             else:
-                data1 = data.squeeze(1)
-                pred = model(Variable(data1))
+                # data1 = data.squeeze(1)
+                pred = model((data))
                 pred = pred[1, :, :]
-                label = label.unsqueeze(1)
+                # label = label.unsqueeze(1)
             loss = criterion(pred, label)
             optimizer.zero_grad()
             loss.backward()
